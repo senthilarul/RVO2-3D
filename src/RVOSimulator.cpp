@@ -224,7 +224,7 @@ namespace RVO {
 #endif
 		for (int i = 0; i < static_cast<int>(agents_.size()); ++i) {
 			agents_[i]->computeNeighbors();
-			agents_[i]->computeNewVelocity();
+			agents_[i]->computeNewVelocity(PQP_Model *b1, PQP_Model *b2);
 		}
 
 #ifdef _OPENMP
