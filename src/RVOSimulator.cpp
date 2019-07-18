@@ -56,6 +56,79 @@ namespace RVO {
 		defaultAgent_->radius_ = radius;
 		defaultAgent_->timeHorizon_ = timeHorizon;
 		defaultAgent_->velocity_ = velocity;
+
+		// Load Environemnt Model
+		const std::string MODEL_PATH_ENV = "../models/cube.obj";
+	    tinyobj::attrib_t attrib_Env;
+    	std::vector<tinyobj::shape_t> shapes_Env;
+    	std::vector<tinyobj::material_t> materials_Env;
+    	std::string err_Env;
+		
+		if (!tinyobj::LoadObj(&attrib_Env, &shapes_Env, &materials_Env, &err_Env, MODEL_PATH_ENV.c_str())) {
+        	throw std::runtime_error(err_Env);
+    	}
+		
+	    b1->BeginModel();
+		std::vector<uint32_t> indices;
+
+        for (const auto& shape : shapes_Env) {
+        	int index = 0;
+            for (int i = 0; i < shape.mesh.indices.size(); i+=3) {
+
+            	PQP_REAL a[3],b[3],c[3];
+            	a[0] = attrib_Env.vertices[3 * shape.mesh.indices[i].vertex_index + 0];
+            	a[1] = attrib_Env.vertices[3 * shape.mesh.indices[i].vertex_index + 1];
+            	a[2] = attrib_Env.vertices[3 * shape.mesh.indices[i].vertex_index + 2];
+
+            	b[0] = attrib_Env.vertices[3 * shape.mesh.indices[i+1].vertex_index + 0];
+            	b[1] = attrib_Env.vertices[3 * shape.mesh.indices[i+1].vertex_index + 1];
+            	b[2] = attrib_Env.vertices[3 * shape.mesh.indices[i+1].vertex_index + 2];
+
+            	c[0] = attrib_Env.vertices[3 * shape.mesh.indices[i+2].vertex_index + 0];
+            	c[1] = attrib_Env.vertices[3 * shape.mesh.indices[i+2].vertex_index + 1];
+            	c[2] = attrib_Env.vertices[3 * shape.mesh.indices[i+2].vertex_index + 2];
+
+            	b1->AddTri(a, b, c, index);
+            	index++;
+            }
+        }
+		b1->EndModel();
+
+		//Load Quadrotor Model
+		const std::string MODEL_PATH_QUAD = "../models/cube_05.obj";
+
+    	tinyobj::attrib_t attrib_Quad;
+    	std::vector<tinyobj::shape_t> shapes_Quad;
+    	std::vector<tinyobj::material_t> materials_Quad;
+    	std::string err_Quad;
+
+    	if (!tinyobj::LoadObj(&attrib_Quad, &shapes_Quad, &materials_Quad, &err_Quad, MODEL_PATH_QUAD.c_str())) {
+        	throw std::runtime_error(err_Quad);
+    	}
+        b2->BeginModel();
+
+        for (const auto& shape : shapes_Quad) {
+        	std::cout<<"shane number: "<<co++;
+        	int index = 0;
+            for (int i = 0; i < shape.mesh.indices.size(); i+=3) {
+            	PQP_REAL a[3],b[3],c[3];
+            	a[0] = attrib_Quad.vertices[3 * shape.mesh.indices[i].vertex_index + 0];
+            	a[1] = attrib_Quad.vertices[3 * shape.mesh.indices[i].vertex_index + 1];
+            	a[2] = attrib_Quad.vertices[3 * shape.mesh.indices[i].vertex_index + 2];
+
+            	b[0] = attrib_Quad.vertices[3 * shape.mesh.indices[i+1].vertex_index + 0];
+            	b[1] = attrib_Quad.vertices[3 * shape.mesh.indices[i+1].vertex_index + 1];
+            	b[2] = attrib_Quad.vertices[3 * shape.mesh.indices[i+1].vertex_index + 2];
+
+            	c[0] = attrib_Quad.vertices[3 * shape.mesh.indices[i+2].vertex_index + 0];
+            	c[1] = attrib_Quad.vertices[3 * shape.mesh.indices[i+2].vertex_index + 1];
+            	c[2] = attrib_Quad.vertices[3 * shape.mesh.indices[i+2].vertex_index + 2];
+
+            	b2->AddTri(a, b, c, index);
+            	index++;
+            }
+        }
+		b2->EndModel();
 	}
 
 	RVOSimulator::~RVOSimulator()
